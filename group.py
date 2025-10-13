@@ -45,7 +45,7 @@ def _has_friend(person):
     #     if r == "friend":
     #         return True
     # return False
-    return len(r for r in _relations_obj(person).values() if r == "friend") > 0
+    return len([r for r in _relations_obj(person).values() if r == "friend"]) > 0
 
 def max_age(group_dict):
     return max(p.get("age", 0) for p in group_dict.values())
