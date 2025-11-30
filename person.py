@@ -1,53 +1,84 @@
 class Person:
-    """A class to represent an individual and their connections."""
+    """A class to represent an individual."""
 
     def __init__(self, name, age, job):
-        """Create a new Person with the given name, age and job and no connections."""
+        """Create a new Person with the given name, age and job."""
         self.name = name
         self.age = age
         self.job = job
-        self.connections = dict()
 
-    def add_connection(self, person, relation):
-        """Add a new connection to a person"""
-        if person in self.connections:
-            raise ValueError(f"I already know about {person.name}")
-        self.connections[person] = relation
+class Group:
+    """A class that represents a group of individuals and their connections."""
 
-    def forget(self, person):
-        """Removes any connections to a person"""
-        self.connections.pop(person, None)
+    def __init__(self):
+        """Create an empty group."""
+        self.members = []
+        self.connections = {}
 
+    def size(self):
+        """Return how many people are in the group."""
+        return len(self.members)
 
-def average_age(group):
-    """Compute the average age of the group's members."""
-    all_ages = [person.age for person in group]
-    return sum(all_ages) / len(group)
+    def contains(self, name):
+        """Check whether the group contains a person with the given name."""
+        return any(member.name == name for member in self.members)
 
+    def add_person(self, name, age, job):
+        """Add a new person with the given characteristics to the group."""
+        if self.contains(name):
+            raise ValueError(f"{name} is already in the group.")
+        person = Person(name, age, job)
+        self.members.append(person)
+        self.connections[name] = {}
+
+    def number_of_connections(self, name):
+        """Find the number of connections that a person in the group has"""
+        if name not in self.connections:
+            return 0
+        return len(self.connections[name])
+
+    def connect(self, name1, name2, relation, reciprocal=True):
+        """Connect two given people in a particular way."""
+        if not self.contains(name1) or not self.contains(name2):
+            raise ValueError("Both people must be in the group.")
+        self.connections[name1][name2] = relation
+        if reciprocal:
+            self.connections[name2][name1] = relation
+
+    def forget(self, name1, name2):
+        """Remove the connection between two people."""
+        if name1 in self.connections and name2 in self.connections[name1]:
+            self.connections[name1].pop(name2)
+        if name2 in self.connections and name1 in self.connections[name2]:
+            self.connections[name2].pop(name1)
+
+    def average_age(self):
+        """Compute the average age of the group's members."""
+        all_ages = [person.age for person in self.members]
+        return sum(all_ages) / self.size() if self.size() > 0 else 0
 
 if __name__ == "__main__":
-    # ...then create the group members one by one...
-    jill = Person("Jill", 26, "biologist")
-    zalika = Person("Zalika", 28, "artist")
-    john = Person("John", 27, "writer")
-    nash = Person("Nash", 34, "chef")
+    # 创建群体
+    my_group = Group()
+    my_group.add_person("Jill", 26, "biologist")
+    my_group.add_person("Zalika", 28, "artist")
+    my_group.add_person("John", 27, "writer")
+    my_group.add_person("Nash", 34, "chef")
 
-    # ...then add the connections one by one...
-    # Note: this will fail from here if the person objects aren't created
-    jill.add_connection(zalika, "friend")
-    jill.add_connection(john, "partner")
-    zalika.add_connection(jill, "friend")
-    john.add_connection(jill, "partner")
-    nash.add_connection(john, "cousin")
-    nash.add_connection(zalika, "landlord")
+    # 添加关系
+    my_group.connect("Jill", "Zalika", "friend")
+    my_group.connect("Jill", "John", "partner")
+    my_group.connect("Nash", "John", "cousin", reciprocal=False)
+    my_group.connect("Nash", "Zalika", "landlord", reciprocal=False)
+    my_group.connect("Zalika", "Jill", "friend", reciprocal=False)
+    my_group.connect("John", "Jill", "partner", reciprocal=False)
 
+    # 忘记 Nash 和 John 的关系
+    my_group.forget("Nash", "John")
 
-    # ... then forget Nash and John's connection
-    nash.forget(john)
-    # Then create the group
-    my_group = {jill, zalika, john, nash}
-
-    assert len(my_group) == 4, "Group should have 4 members"
-    assert average_age(my_group) == 28.75, "Average age of the group is incorrect!"
-    assert len(nash.connections) == 1, "Nash should only have one relation "
+    # 断言
+    assert my_group.contains("John"), "John should be in the group"
+    assert my_group.size() == 4, "Group should have 4 members"
+    assert my_group.average_age() == 28.75, "Average age of the group is incorrect!"
+    assert my_group.number_of_connections("Nash") == 1, "Nash should only have one relation"
     print("All assertions have passed!")
