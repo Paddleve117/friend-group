@@ -58,14 +58,12 @@ class Group:
         return sum(all_ages) / self.size() if self.size() > 0 else 0
 
 if __name__ == "__main__":
-    # 创建群体
     my_group = Group()
     my_group.add_person("Jill", 26, "biologist")
     my_group.add_person("Zalika", 28, "artist")
     my_group.add_person("John", 27, "writer")
     my_group.add_person("Nash", 34, "chef")
 
-    # 添加关系
     my_group.connect("Jill", "Zalika", "friend")
     my_group.connect("Jill", "John", "partner")
     my_group.connect("Nash", "John", "cousin", reciprocal=False)
@@ -73,10 +71,8 @@ if __name__ == "__main__":
     my_group.connect("Zalika", "Jill", "friend", reciprocal=False)
     my_group.connect("John", "Jill", "partner", reciprocal=False)
 
-    # 忘记 Nash 和 John 的关系
     my_group.forget("Nash", "John")
 
-    # 断言
     assert my_group.contains("John"), "John should be in the group"
     assert my_group.size() == 4, "Group should have 4 members"
     assert my_group.average_age() == 28.75, "Average age of the group is incorrect!"
